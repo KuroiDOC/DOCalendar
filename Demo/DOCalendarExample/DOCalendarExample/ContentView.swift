@@ -32,6 +32,17 @@ struct ContentView: View {
                 style: CalendarStyle(selectionStyle: .init(selectionOption: .range))
             )
             .padding(.top, 16)
+            .overlay(
+                VStack {
+                    Spacer()
+                    Button {
+                        isShowingCalendar.toggle()
+                    } label: {
+                        Text("DONE")
+                    }
+                    .buttonStyle(.bordered)
+                }
+            )
         }
     }
 }

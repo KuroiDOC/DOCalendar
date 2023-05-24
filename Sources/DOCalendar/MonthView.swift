@@ -10,48 +10,50 @@ internal struct MonthView: View {
     var style: CalendarStyle = CalendarStyle()
 
     public var body: some View {
-        Text(monthName)
-            .font(style.headerStyle.monthFont)
-            .foregroundColor(style.headerStyle.monthColor)
-            .background(style.headerStyle.monthBackground)
+        VStack {
+            Text(monthName)
+                .font(style.headerStyle.monthFont)
+                .foregroundColor(style.headerStyle.monthColor)
+                .background(style.headerStyle.monthBackground)
 
-        let columns = [
-            GridItem(.flexible(), spacing: 0),
-            GridItem(.flexible(), spacing: 0),
-            GridItem(.flexible(), spacing: 0),
-            GridItem(.flexible(), spacing: 0),
-            GridItem(.flexible(), spacing: 0),
-            GridItem(.flexible(), spacing: 0),
-            GridItem(.flexible(), spacing: 0)
-        ]
+            let columns = [
+                GridItem(.flexible(), spacing: 0),
+                GridItem(.flexible(), spacing: 0),
+                GridItem(.flexible(), spacing: 0),
+                GridItem(.flexible(), spacing: 0),
+                GridItem(.flexible(), spacing: 0),
+                GridItem(.flexible(), spacing: 0),
+                GridItem(.flexible(), spacing: 0)
+            ]
 
-        LazyVGrid(columns: columns, spacing: 0) {
-            ForEach(calendar.shortWeekdaySymbols, id: \.self) { weekday in
-                Text("\(weekday)".capitalized)
-                    .font(style.headerStyle.weekDayFont)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .foregroundColor(style.headerStyle.weekDayColor)
-                    .background(style.headerStyle.weekDayBackground)
-            }
+            LazyVGrid(columns: columns, spacing: 0) {
+                ForEach(calendar.shortWeekdaySymbols, id: \.self) { weekday in
+                    Text("\(weekday)".capitalized)
+                        .font(style.headerStyle.weekDayFont)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .foregroundColor(style.headerStyle.weekDayColor)
+                        .background(style.headerStyle.weekDayBackground)
+                }
 
-            let items = buildItems()
-            ForEach(items) { item in
-                if let day = item.day {
-                    Button {
-                        handleSelection(for: day)
-                    } label: {
-                        Text("\(day)")
-                            .font(style.itemStyle.font)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .aspectRatio(1, contentMode: .fill)
-                            .foregroundColor(foregroundColor(for: day))
-                            .background(
-                                background(for: day)
-                            )
+                let items = buildItems()
+                ForEach(items) { item in
+                    if let day = item.day {
+                        Button {
+                            handleSelection(for: day)
+                        } label: {
+                            Text("\(day)")
+                                .font(style.itemStyle.font)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .aspectRatio(1, contentMode: .fill)
+                                .foregroundColor(foregroundColor(for: day))
+                                .background(
+                                    background(for: day)
+                                )
+                        }
+
+                    } else {
+                        style.itemStyle.background
                     }
-
-                } else {
-                    style.itemStyle.background
                 }
             }
         }
@@ -63,7 +65,7 @@ internal struct MonthView: View {
         dateComponents.year = year
 
         guard let date = dateComponents.date,
-                let result =  calendar.range(of: .day, in: .month, for: date) else {
+              let result =  calendar.range(of: .day, in: .month, for: date) else {
             fatalError("Invalid date components")
         }
 

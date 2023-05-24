@@ -12,6 +12,7 @@ public struct CalendarView: View {
     @Binding var selection: Set<Date>
     var calendar = Calendar.autoupdatingCurrent
     var style = CalendarStyle()
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
 
     public init(range: ClosedRange<Date>, selection: Binding<Set<Date>>, calendar: Calendar = Calendar.autoupdatingCurrent, style: CalendarStyle = CalendarStyle()) {
         self.range = range
@@ -29,11 +30,25 @@ public struct CalendarView: View {
 
     public var body: some View {
         ScrollView {
-            VStack {
-                ForEach(0...numberOfMonthsInRange, id: \.self) { offset in
-                    let decomposedDate = range.lowerBound.plus(months: offset).decomposed()
-                    MonthView(month: decomposedDate.month, year: decomposedDate.year, selections: $selection, calendar: calendar, style: style)
+            if horizontalSizeClass == .compact {
+                VStack {
+                    innerBody
                 }
+            } else {
+                let columns = [GridItem(.adaptive(minimum: 210))]
+                LazyVGrid(columns: columns) {
+                    innerBody
+                }
+            }
+        }
+    }
+
+    private var innerBody: some View {
+        ForEach(0...numberOfMonthsInRange, id: \.self) { offset in
+            let decomposedDate = range.lowerBound.plus(months: offset).decomposed()
+            VStack {
+                MonthView(month: decomposedDate.month, year: decomposedDate.year, selections: $selection, calendar: calendar, style: style)
+                Spacer()
             }
         }
     }
