@@ -12,6 +12,8 @@ struct ContentView: View {
     @State var selection: Set<Date> = .init()
     @State var isShowingCalendar = false
 
+
+
     var body: some View {
         VStack {
             if !selection.isEmpty {
@@ -27,7 +29,7 @@ struct ContentView: View {
         }
         .sheet(isPresented: $isShowingCalendar) {
             CalendarView(
-                range: Date()...Date().addingTimeInterval(24 * 30 * 12 * 3600),
+                range: Date()...Calendar.autoupdatingCurrent.date(byAdding: .year, value: 2, to: Date())!,
                 selection: $selection,
                 style: CalendarStyle(selectionStyle: .init(selectionOption: .range))
             )

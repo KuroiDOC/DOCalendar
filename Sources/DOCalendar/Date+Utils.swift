@@ -35,9 +35,9 @@ extension Date {
     }
 
     /// Adds time amounts to date. Can be used with negative amounts
-    func plus(days: Int = 0, months: Int = 0, years: Int = 0, hours: Int = 0, minutes: Int = 0) -> Date {
+    func plus(days: Int = 0, months: Int = 0, years: Int = 0, hours: Int = 0, minutes: Int = 0, seconds: Int = 0) -> Date {
         let calendar = Calendar.current
-        let dateComponents: Set<Calendar.Component> = [.year, .month, .day, .hour, .minute]
+        let dateComponents: Set<Calendar.Component> = [.year, .month, .day, .hour, .minute, .second]
 
         var components = calendar.dateComponents(dateComponents, from: self)
         components.day = components.day! + days
@@ -45,7 +45,25 @@ extension Date {
         components.year = components.year! + years
         components.hour = components.hour! + hours
         components.minute = components.minute! + minutes
+        components.second = components.second! + seconds
 
         return calendar.date(from: components)!
+    }
+
+    static func bySetting(day: Int? = nil, month: Int? = nil, year: Int? = nil) -> Date? {
+        let calendar = Calendar.current
+
+        var components = DateComponents()
+        if let day {
+            components.day = day
+        }
+        if let month {
+            components.month = month
+        }
+        if let year {
+            components.year = year
+        }
+
+        return calendar.date(from: components)
     }
 }

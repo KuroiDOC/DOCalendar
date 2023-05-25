@@ -20,40 +20,46 @@ public struct CalendarStyle {
 }
 
 public struct ItemStyle {
-    var background: Color = .background
-    var textColor: Color = .label
-    var itemBackground: Color = .background
-    var font: Font = .body
+    var background: Color
+    var itemBackground: Color
+    var textColor: Color
+    var font: Font
+    var unavailableTextColor: Color
+    var unavailableFont: Font
 
-    public init(background: Color = .background, textColor: Color = .label, itemBackground: Color = .background, font: Font = .body) {
+    public init(background: Color = .background, itemBackground: Color = .background, textColor: Color = .label, font: Font = .body, unavailableTextColor: Color = .secondaryLabel, unavailableFont: Font = .body) {
         self.background = background
-        self.textColor = textColor
         self.itemBackground = itemBackground
+        self.textColor = textColor
         self.font = font
+        self.unavailableTextColor = unavailableTextColor
+        self.unavailableFont = unavailableFont
     }
 }
 
 public struct SelectionSyle {
-    var background: Color = .accentColor
-    var textColor: Color = .white
-    var rangeBackground: Color = .accentColor.opacity(0.25)
-    var selectionOption: SelectionOption = .single
+    var background: Color
+    var textColor: Color
+    var font: Font
+    var rangeBackground: Color
+    var selectionOption: SelectionOption
 
-    public init(background: Color = .accentColor, textColor: Color = .white, rangeBackground: Color = .accentColor.opacity(0.25), selectionOption: SelectionOption = .single) {
+    public init(background: Color = .accentColor, textColor: Color = .white, font: Font = .body, rangeBackground: Color = .accentColor.opacity(0.25), selectionOption: SelectionOption = .single) {
         self.background = background
         self.textColor = textColor
+        self.font = font
         self.rangeBackground = rangeBackground
         self.selectionOption = selectionOption
     }
 }
 
 public struct HeaderStyle {
-    var weekDayFont: Font = .subheadline
-    var weekDayColor: Color = .label
-    var weekDayBackground: Color = .background
-    var monthFont: Font = .headline
-    var monthColor: Color = .label
-    var monthBackground: Color = .background
+    var weekDayFont: Font
+    var weekDayColor: Color
+    var weekDayBackground: Color
+    var monthFont: Font
+    var monthColor: Color
+    var monthBackground: Color
 
     public init(weekDayFont: Font = .subheadline, weekDayColor: Color = .label, weekDayBackground: Color = .background, monthFont: Font = .headline, monthColor: Color = .label, monthBackground: Color = .background) {
         self.weekDayFont = weekDayFont

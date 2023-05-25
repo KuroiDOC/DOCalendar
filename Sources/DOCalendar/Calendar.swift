@@ -29,15 +29,22 @@ public struct CalendarView: View {
     }
 
     public var body: some View {
-        ScrollView {
+        VStack {
             if horizontalSizeClass == .compact {
-                VStack {
-                    innerBody
+                HStack(spacing: 0) {
+                    WeekdaysView(calendar: calendar, style: style)
                 }
-            } else {
-                let columns = [GridItem(.adaptive(minimum: 210))]
-                LazyVGrid(columns: columns) {
-                    innerBody
+            }
+            ScrollView {
+                if horizontalSizeClass == .compact {
+                    VStack {
+                        innerBody
+                    }
+                } else {
+                    let columns = [GridItem(.adaptive(minimum: 210))]
+                    LazyVGrid(columns: columns) {
+                        innerBody
+                    }
                 }
             }
         }
@@ -47,9 +54,23 @@ public struct CalendarView: View {
         ForEach(0...numberOfMonthsInRange, id: \.self) { offset in
             let decomposedDate = range.lowerBound.plus(months: offset).decomposed()
             VStack {
-                MonthView(month: decomposedDate.month, year: decomposedDate.year, selections: $selection, calendar: calendar, style: style)
+                MonthView(
+                    month: decomposedDate.month,
+                    year: decomposedDate.year,
+                    range: adjustRange(range),
+                    selections: $selection,
+                    calendar: calendar,
+                    style: style
+                )
                 Spacer()
             }
         }
+    }
+
+    /// Sets the range to the start of the day to the end of it
+    func adjustRange(_ range: ClosedRange<Date>) -> ClosedRange<Date> {
+        let lowerBound = calendar.startOfDay(for: range.lowerBound)
+        let upperBound = calendar.startOfDay(for: range.upperBound).plus(days: 1, seconds: -1)
+        return lowerBound...upperBound
     }
 }

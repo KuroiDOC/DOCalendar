@@ -4,10 +4,13 @@ import SwiftUI
 internal struct MonthView: View {
     var month: Int
     var year: Int
+    var range: ClosedRange<Date>
     @Binding
     var selections: Set<Date>
     var calendar: Calendar = Calendar.autoupdatingCurrent
     var style: CalendarStyle = CalendarStyle()
+
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
 
     public var body: some View {
         VStack {
@@ -27,12 +30,8 @@ internal struct MonthView: View {
             ]
 
             LazyVGrid(columns: columns, spacing: 0) {
-                ForEach(calendar.shortWeekdaySymbols, id: \.self) { weekday in
-                    Text("\(weekday)".capitalized)
-                        .font(style.headerStyle.weekDayFont)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .foregroundColor(style.headerStyle.weekDayColor)
-                        .background(style.headerStyle.weekDayBackground)
+                if horizontalSizeClass != .compact {
+                    WeekdaysView(calendar: calendar, style: style)
                 }
 
                 let items = buildItems()
@@ -42,7 +41,7 @@ internal struct MonthView: View {
                             handleSelection(for: day)
                         } label: {
                             Text("\(day)")
-                                .font(style.itemStyle.font)
+                                .font(font(for: day))
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 .aspectRatio(1, contentMode: .fill)
                                 .foregroundColor(foregroundColor(for: day))
@@ -158,10 +157,25 @@ internal struct MonthView: View {
     }
 
     func foregroundColor(for day: Int) -> Color {
-        if selections.contains(date(for: day)) {
+        let date = date(for: day)
+        if selections.contains(date) {
             return style.selectionStyle.textColor
+        } else if range ~= date {
+            return style.itemStyle.textColor
+        } else {
+            return style.itemStyle.unavailableTextColor
         }
-        return style.itemStyle.textColor
+    }
+
+    func font(for day: Int) -> Font {
+        let date = date(for: day)
+        if selections.contains(date) {
+            return style.selectionStyle.font
+        } else if range ~= date {
+            return style.itemStyle.unavailableFont
+        } else {
+            return style.itemStyle.font
+        }
     }
 
     var selectionRange: ClosedRange<Date>? {
@@ -183,6 +197,8 @@ internal struct MonthView: View {
 
     func handleSelection(for day: Int) {
         let date = date(for: day)
+        guard range ~= date else { return }
+
         switch style.selectionStyle.selectionOption {
         case .single:
             selections = [date]
@@ -210,6 +226,8 @@ struct Item: Identifiable {
 }
 
 struct Month_previews: PreviewProvider {
+    static let range = Date.bySetting(day: 15, month: 2, year: 2023)!...Date.bySetting(day: 15, month: 5, year: 2023)!
+
     struct Container: View {
         var month: Int
         var year: Int
@@ -217,14 +235,14 @@ struct Month_previews: PreviewProvider {
         @State var selection: Set<Date> = .init()
 
         var body: some View {
-            MonthView(month: 4, year: 2023, selections: $selection, style: style)
+            MonthView(month: 4, year: 2023, range: range, selections: $selection, style: style)
         }
     }
 
     static var previews: some View {
         ScrollView {
             VStack {
-                MonthView(month: 2, year: 2023, selections: .constant([]))
+                MonthView(month: 2, year: 2023, range: range, selections: .constant([]))
                 Container(month: 3, year: 2023)
                 Container(month: 4, year: 2023, style: .init())
                 Container(month: 5, year: 2023)
