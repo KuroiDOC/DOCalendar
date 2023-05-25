@@ -14,7 +14,8 @@ internal struct MonthView: View {
 
     public var body: some View {
         VStack {
-            Text(monthName)
+            Text(verbatim: "\(monthName) \(year)")
+                .textCase(style.headerStyle.monthCase)
                 .font(style.headerStyle.monthFont)
                 .foregroundColor(style.headerStyle.monthColor)
                 .background(style.headerStyle.monthBackground)

@@ -60,14 +60,16 @@ public struct HeaderStyle {
     var monthFont: Font
     var monthColor: Color
     var monthBackground: Color
+    var monthCase: Text.Case?
 
-    public init(weekDayFont: Font = .subheadline, weekDayColor: Color = .label, weekDayBackground: Color = .background, monthFont: Font = .headline, monthColor: Color = .label, monthBackground: Color = .background) {
+    public init(weekDayFont: Font = .subheadline, weekDayColor: Color = .label, weekDayBackground: Color = .background, monthFont: Font = .headline, monthColor: Color = .label, monthBackground: Color = .background, monthCase: Text.Case? = .none) {
         self.weekDayFont = weekDayFont
         self.weekDayColor = weekDayColor
         self.weekDayBackground = weekDayBackground
         self.monthFont = monthFont
         self.monthColor = monthColor
         self.monthBackground = monthBackground
+        self.monthCase = monthCase
     }
 }
 
