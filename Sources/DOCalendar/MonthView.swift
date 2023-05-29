@@ -2,15 +2,27 @@ import Foundation
 import SwiftUI
 
 internal struct MonthView: View {
-    var month: Int
-    var year: Int
-    var range: ClosedRange<Date>
+    let month: Int
+    let year: Int
+    let range: ClosedRange<Date>
     @Binding
     var selections: Set<Date>
-    var calendar: Calendar = Calendar.autoupdatingCurrent
-    var style: CalendarStyle = CalendarStyle()
+    let calendar: Calendar
+    let style: CalendarStyle
 
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
+
+    private let items: [Item]
+
+    init(month: Int, year: Int, range: ClosedRange<Date>, selections: Binding<Set<Date>>, calendar: Calendar = Calendar.autoupdatingCurrent, style: CalendarStyle = CalendarStyle()) {
+        self.month = month
+        self.year = year
+        self.range = range
+        self._selections = selections
+        self.calendar = calendar
+        self.style = style
+        self.items = Self.buildItems(calendar: calendar, month: month, year: year)
+    }
 
     public var body: some View {
         VStack {
@@ -35,7 +47,6 @@ internal struct MonthView: View {
                     WeekdaysView(calendar: calendar, style: style)
                 }
 
-                let items = buildItems()
                 ForEach(items) { item in
                     if let day = item.day {
                         Button {
@@ -59,7 +70,7 @@ internal struct MonthView: View {
         }
     }
 
-    var lastDay: Int {
+    static func lastDay(calendar: Calendar, month: Int, year: Int) -> Int {
         var dateComponents = DateComponents(calendar: calendar)
         dateComponents.month = month
         dateComponents.year = year
@@ -73,20 +84,23 @@ internal struct MonthView: View {
     }
 
     // From 1 to 7
-    var firstWeekDay: Int {
+    static func firstWeekDay(calendar: Calendar, month: Int, year: Int) -> Int {
         var dateComponents = DateComponents(calendar: calendar)
         dateComponents.day = 1
         dateComponents.month = month
         dateComponents.year = year
 
-        guard let date = dateComponents.date else {
+        guard let date = Date.bySetting(day: 1, month: month, year: year, calendar: calendar) else {
             fatalError("Invalid date components")
         }
 
         return calendar.component(.weekday, from: date)
     }
 
-    func buildItems() -> [Item] {
+    static func buildItems(calendar: Calendar, month: Int, year: Int) -> [Item] {
+        let firstWeekDay = firstWeekDay(calendar: calendar, month: month, year: year)
+        let lastDay = lastDay(calendar: calendar, month: month, year: year)
+
         let spares = (1..<firstWeekDay).map { _ in Item() }
         return spares + (1...lastDay).map {
             Item(day: $0)
@@ -94,12 +108,7 @@ internal struct MonthView: View {
     }
 
     func date(for day: Int) -> Date {
-        var dateComponents = DateComponents(calendar: calendar)
-        dateComponents.day = day
-        dateComponents.month = month
-        dateComponents.year = year
-
-        guard let date = dateComponents.date else {
+        guard let date = Date.bySetting(day: day, month: month, year: year, calendar: calendar) else {
             fatalError("Invalid date components")
         }
 
@@ -108,7 +117,7 @@ internal struct MonthView: View {
 
     @ViewBuilder
     func background(for day: Int) -> some View {
-        let date = date(for: day)
+        let date: Date = date(for: day)
 
         switch style.selectionStyle.selectionOption {
         case .single where selections.contains(date), .multi where selections.contains(date):

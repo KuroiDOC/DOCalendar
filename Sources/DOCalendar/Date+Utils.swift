@@ -50,10 +50,20 @@ extension Date {
         return calendar.date(from: components)!
     }
 
-    static func bySetting(day: Int? = nil, month: Int? = nil, year: Int? = nil) -> Date? {
-        let calendar = Calendar.current
+    static func bySetting(day: Int? = nil, month: Int? = nil, year: Int? = nil, calendar: Calendar = .autoupdatingCurrent) -> Date? {
+        bySetting(components: DateComponents(), day: day, month: month, year: year, calendar: calendar)
+    }
 
-        var components = DateComponents()
+    func bySetting(day: Int? = nil, month: Int? = nil, year: Int? = nil, calendar: Calendar = .autoupdatingCurrent) -> Date? {
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.day, .month, .year], from: self)
+
+        return Self.bySetting(components: components, day: day, month: month, year: year, calendar: calendar)
+    }
+
+    private static func bySetting(components: DateComponents, day: Int? = nil, month: Int? = nil, year: Int? = nil, calendar: Calendar) -> Date? {
+        var components = components
+
         if let day {
             components.day = day
         }

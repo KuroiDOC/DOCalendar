@@ -13,7 +13,10 @@ public struct CalendarView: View {
     var calendar = Calendar.autoupdatingCurrent
     var gridItemMinimunWidth: CGFloat
     var style = CalendarStyle()
+
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
+
+    private let items: [CalendarItem]
 
     public init(
         range: ClosedRange<Date>,
@@ -27,13 +30,27 @@ public struct CalendarView: View {
         self.calendar = calendar
         self.gridItemMinimunWidth = gridItemMinimunWidth
         self.style = style
+
+//        items = (0...Self.numberOfMonthsIn(range: range, calendar: calendar)).map {
+//            CalendarItem(decomposedDate: range.lowerBound.plus(months: $0).decomposed())
+//        }
+        items = Self.buildItems(range: range, calendar: calendar)
     }
 
-    var numberOfMonthsInRange: Int {
-        guard let monthsBetween = calendar.dateComponents([.month], from: range.lowerBound, to: range.upperBound).month else {
-            fatalError("Illegal state")
+    private static func buildItems(range: ClosedRange<Date>, calendar: Calendar) -> [CalendarItem] {
+        guard let lowerBound = range.lowerBound.bySetting(day: 1) else {
+            fatalError("Invalid date components")
         }
-        return monthsBetween
+
+        var result: [CalendarItem] = []
+        var date = calendar.startOfDay(for: lowerBound)
+        repeat {
+            let item = CalendarItem(decomposedDate: date.decomposed(calendar: calendar))
+            result.append(item)
+            date = date.plus(months: 1)
+        } while range ~= date
+
+        return result
     }
 
     public var body: some View {
@@ -59,12 +76,11 @@ public struct CalendarView: View {
     }
 
     private var innerBody: some View {
-        ForEach(0...numberOfMonthsInRange, id: \.self) { offset in
-            let decomposedDate = range.lowerBound.plus(months: offset).decomposed()
+        ForEach(items) { item in
             VStack {
                 MonthView(
-                    month: decomposedDate.month,
-                    year: decomposedDate.year,
+                    month: item.decomposedDate.month,
+                    year: item.decomposedDate.year,
                     range: adjustRange(range),
                     selections: $selection,
                     calendar: calendar,
@@ -80,5 +96,12 @@ public struct CalendarView: View {
         let lowerBound = calendar.startOfDay(for: range.lowerBound)
         let upperBound = calendar.startOfDay(for: range.upperBound).plus(days: 1, seconds: -1)
         return lowerBound...upperBound
+    }
+}
+
+private struct CalendarItem: Identifiable {
+    var decomposedDate: Date.Decomposed
+    var id: String {
+        "\(decomposedDate.year)-\(decomposedDate.month)"
     }
 }
