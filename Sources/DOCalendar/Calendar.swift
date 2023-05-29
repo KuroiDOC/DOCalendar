@@ -11,13 +11,21 @@ public struct CalendarView: View {
     var range: ClosedRange<Date>
     @Binding var selection: Set<Date>
     var calendar = Calendar.autoupdatingCurrent
+    var gridItemMinimunWidth: CGFloat
     var style = CalendarStyle()
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
 
-    public init(range: ClosedRange<Date>, selection: Binding<Set<Date>>, calendar: Calendar = Calendar.autoupdatingCurrent, style: CalendarStyle = CalendarStyle()) {
+    public init(
+        range: ClosedRange<Date>,
+        selection: Binding<Set<Date>>,
+        calendar: Calendar = Calendar.autoupdatingCurrent,
+        gridItemMinimunWidth: CGFloat = 210,
+        style: CalendarStyle = CalendarStyle()
+    ) {
         self.range = range
         self._selection = selection
         self.calendar = calendar
+        self.gridItemMinimunWidth = gridItemMinimunWidth
         self.style = style
     }
 
@@ -41,7 +49,7 @@ public struct CalendarView: View {
                         innerBody
                     }
                 } else {
-                    let columns = [GridItem(.adaptive(minimum: 210))]
+                    let columns = [GridItem(.adaptive(minimum: gridItemMinimunWidth))]
                     LazyVGrid(columns: columns) {
                         innerBody
                     }
