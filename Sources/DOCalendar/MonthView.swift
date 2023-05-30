@@ -32,15 +32,7 @@ internal struct MonthView: View {
                 .foregroundColor(style.headerStyle.monthColor)
                 .background(style.headerStyle.monthBackground)
 
-            let columns = [
-                GridItem(.flexible(), spacing: 0),
-                GridItem(.flexible(), spacing: 0),
-                GridItem(.flexible(), spacing: 0),
-                GridItem(.flexible(), spacing: 0),
-                GridItem(.flexible(), spacing: 0),
-                GridItem(.flexible(), spacing: 0),
-                GridItem(.flexible(), spacing: 0)
-            ]
+            let columns = Array(repeating: GridItem(.flexible(), spacing: 0), count: 7)
 
             LazyVGrid(columns: columns, spacing: 0) {
                 if horizontalSizeClass != .compact {
@@ -48,7 +40,7 @@ internal struct MonthView: View {
                 }
 
                 ForEach(items) { item in
-                    if let day = item.day {
+                    if let day = item.decomposedDate?.day {
                         Button {
                             handleSelection(for: day)
                         } label: {
@@ -102,9 +94,11 @@ internal struct MonthView: View {
         let lastDay = lastDay(calendar: calendar, month: month, year: year)
 
         let spares = (1..<firstWeekDay).map { _ in Item() }
-        return spares + (1...lastDay).map {
-            Item(day: $0)
+        let result = spares + (1...lastDay).map {
+            Item(decomposedDate: Date.Decomposed(year: year, month: month, day: $0))
         }
+
+        return result + (1..<(7 - (result.count % 7))).map { _ in Item() }
     }
 
     func date(for day: Int) -> Date {
@@ -231,8 +225,17 @@ internal struct MonthView: View {
 }
 
 struct Item: Identifiable {
-    var id = UUID()
-    var day: Int?
+    var id: String
+    var decomposedDate: Date.Decomposed?
+
+    init(decomposedDate: Date.Decomposed? = nil) {
+        self.id = UUID().uuidString
+        self.decomposedDate = decomposedDate
+
+        if let decomposedDate {
+            id = "\(decomposedDate.year)-\(decomposedDate.month)-\(decomposedDate.day)"
+        }
+    }
 }
 
 struct Month_previews: PreviewProvider {

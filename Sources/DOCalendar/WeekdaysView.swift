@@ -12,13 +12,20 @@ struct WeekdaysView: View {
     var style: CalendarStyle
 
     var body: some View {
-        ForEach(calendar.shortWeekdaySymbols, id: \.self) { weekday in
-            Text("\(weekday)".capitalized)
+        let items = calendar.shortWeekdaySymbols.map { Item(text: $0) }
+
+        ForEach(items) { weekdayItem in
+            Text("\(weekdayItem.text)".capitalized)
                 .font(style.headerStyle.weekDayFont)
                 .foregroundColor(style.headerStyle.weekDayColor)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 16)
                 .background(style.headerStyle.weekDayBackground)
         }
+    }
+
+    private struct Item: Identifiable {
+        var id = UUID()
+        var text: String
     }
 }

@@ -15,7 +15,7 @@ extension Date {
         public var hour: Int
         public var minute: Int
 
-        public init(year: Int, month: Int, day: Int, hour: Int, minute: Int) {
+        public init(year: Int, month: Int, day: Int, hour: Int = 0, minute: Int = 0) {
             self.year = year
             self.month = month
             self.day = day

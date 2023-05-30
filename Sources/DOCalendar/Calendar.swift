@@ -11,7 +11,7 @@ public struct CalendarView: View {
     var range: ClosedRange<Date>
     @Binding var selection: Set<Date>
     var calendar = Calendar.autoupdatingCurrent
-    var gridItemMinimunWidth: CGFloat
+    var numColumns: Int
     var style = CalendarStyle()
 
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
@@ -22,13 +22,13 @@ public struct CalendarView: View {
         range: ClosedRange<Date>,
         selection: Binding<Set<Date>>,
         calendar: Calendar = Calendar.autoupdatingCurrent,
-        gridItemMinimunWidth: CGFloat = 210,
+        numColumns: Int = 2,
         style: CalendarStyle = CalendarStyle()
     ) {
         self.range = range
         self._selection = selection
         self.calendar = calendar
-        self.gridItemMinimunWidth = gridItemMinimunWidth
+        self.numColumns = numColumns
         self.style = style
 
 //        items = (0...Self.numberOfMonthsIn(range: range, calendar: calendar)).map {
@@ -66,9 +66,30 @@ public struct CalendarView: View {
                         innerBody
                     }
                 } else {
-                    let columns = [GridItem(.adaptive(minimum: gridItemMinimunWidth))]
-                    LazyVGrid(columns: columns) {
-                        innerBody
+                    // Because of a glitchy behaviour using a LazyVGrid, this multiple month layout is restricted for iOS 16
+                    if #available(iOS 16, *) {
+                        Grid {
+                            let chunks = items.chunked(into: numColumns)
+                            ForEach(0..<chunks.count, id: \.self) { index in
+                                let chunk = chunks[index]
+                                GridRow(alignment: .top) {
+                                    ForEach(chunk) { item in
+                                        MonthView(
+                                            month: item.decomposedDate.month,
+                                            year: item.decomposedDate.year,
+                                            range: adjustRange(range),
+                                            selections: $selection,
+                                            calendar: calendar,
+                                            style: style
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        VStack {
+                            innerBody
+                        }
                     }
                 }
             }
@@ -77,17 +98,14 @@ public struct CalendarView: View {
 
     private var innerBody: some View {
         ForEach(items) { item in
-            VStack {
-                MonthView(
-                    month: item.decomposedDate.month,
-                    year: item.decomposedDate.year,
-                    range: adjustRange(range),
-                    selections: $selection,
-                    calendar: calendar,
-                    style: style
-                )
-                Spacer()
-            }
+            MonthView(
+                month: item.decomposedDate.month,
+                year: item.decomposedDate.year,
+                range: adjustRange(range),
+                selections: $selection,
+                calendar: calendar,
+                style: style
+            )
         }
     }
 
@@ -103,5 +121,13 @@ private struct CalendarItem: Identifiable {
     var decomposedDate: Date.Decomposed
     var id: String {
         "\(decomposedDate.year)-\(decomposedDate.month)"
+    }
+}
+
+private extension Array {
+    func chunked(into size: Int) -> [[Element]] {
+        return stride(from: 0, to: count, by: size).map {
+            Array(self[$0 ..< Swift.min($0 + size, count)])
+        }
     }
 }

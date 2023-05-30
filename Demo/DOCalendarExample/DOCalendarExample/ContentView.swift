@@ -31,6 +31,7 @@ struct ContentView: View {
             CalendarView(
                 range: Date()...Calendar.autoupdatingCurrent.date(byAdding: .year, value: 2, to: Date())!,
                 selection: $selection,
+                numColumns: 3,
                 style: CalendarStyle(selectionStyle: .init(selectionOption: .range))
             )
             .padding(.top, 16)
