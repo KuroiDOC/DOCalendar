@@ -86,7 +86,13 @@ internal struct MonthView: View {
             fatalError("Invalid date components")
         }
 
-        return calendar.component(.weekday, from: date)
+        let result = calendar.component(.weekday, from: date) - (calendar.firstWeekday - 1)
+        switch result {
+        case 0:
+            return 7
+        default:
+            return result
+        }
     }
 
     static func buildItems(calendar: Calendar, month: Int, year: Int) -> [Item] {

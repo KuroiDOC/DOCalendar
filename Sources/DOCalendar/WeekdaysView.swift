@@ -12,7 +12,10 @@ struct WeekdaysView: View {
     var style: CalendarStyle
 
     var body: some View {
-        let items = calendar.shortWeekdaySymbols.map { Item(text: $0) }
+        let items = calendar
+            .shortWeekdaySymbols
+            .shiftLeft(positions: calendar.firstWeekday - 1)
+            .map { Item(text: $0) }
 
         ForEach(items) { weekdayItem in
             Text("\(weekdayItem.text)".capitalized)
