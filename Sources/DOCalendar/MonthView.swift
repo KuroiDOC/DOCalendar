@@ -171,7 +171,7 @@ internal struct MonthView: View {
         if selections.contains(date) {
             return style.selectionStyle.textColor
         } else if range ~= date {
-            return style.itemStyle.textColor
+            return calendar.isDateInToday(date) ? style.itemStyle.todayTextColor : style.itemStyle.textColor
         } else {
             return style.itemStyle.unavailableTextColor
         }
@@ -182,9 +182,9 @@ internal struct MonthView: View {
         if selections.contains(date) {
             return style.selectionStyle.font
         } else if range ~= date {
-            return style.itemStyle.unavailableFont
+            return calendar.isDateInToday(date) ? style.itemStyle.todayFont : style.itemStyle.font
         } else {
-            return style.itemStyle.font
+            return style.itemStyle.unavailableFont
         }
     }
 
