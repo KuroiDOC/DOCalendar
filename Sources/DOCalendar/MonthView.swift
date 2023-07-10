@@ -64,6 +64,7 @@ internal struct MonthView: View {
 
     static func lastDay(calendar: Calendar, month: Int, year: Int) -> Int {
         var dateComponents = DateComponents(calendar: calendar)
+        dateComponents.day = 1
         dateComponents.month = month
         dateComponents.year = year
 
