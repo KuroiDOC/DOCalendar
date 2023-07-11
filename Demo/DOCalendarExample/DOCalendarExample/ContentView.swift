@@ -9,30 +9,53 @@ import SwiftUI
 import DOCalendar
 
 struct ContentView: View {
-    @State var selection: Set<Date> = .init()
+    @State var selection: Array<Date> = .init()
     @State var isShowingCalendar = false
-
-
+    @State var calendarStyle = CalendarStyle()
+    @State var allowsRepetition = false
 
     var body: some View {
         VStack {
-            if !selection.isEmpty {
-                ForEach(selection.sorted(by: <), id: \.self) { date in
-                    Text(date,style: .date)
-                }
+            HStack {
+                Spacer()
+                Text("Allow repeated dates")
+                Toggle("", isOn: $allowsRepetition)
+                    .labelsHidden()
+                Spacer()
             }
+
             Button {
+                calendarStyle = CalendarStyle(selectionStyle: .init(selectionOption: .range))
                 isShowingCalendar.toggle()
             } label: {
-                Text("Show calendar")
+                Text("Show range selection calendar")
             }
+            .padding(.top, 8)
+
+            Button {
+                calendarStyle = CalendarStyle(selectionStyle: .init(selectionOption: .multi))
+                isShowingCalendar.toggle()
+            } label: {
+                Text("Show multiple selection calendar")
+            }
+            .padding(.top, 8)
+
+            if !selection.isEmpty {
+                Text("Selected dates:")
+                    .padding(.top, 8)
+                ForEach(Array(selection.sorted(by: <).enumerated()), id: \.self.offset) { date in
+                    Text(date.element, style: .date)
+                }
+            }
+
         }
         .sheet(isPresented: $isShowingCalendar) {
             CalendarView(
                 range: Date()...Calendar.autoupdatingCurrent.date(byAdding: .year, value: 2, to: Date())!,
                 selection: $selection,
                 numColumns: 3,
-                style: CalendarStyle(selectionStyle: .init(selectionOption: .range))
+                style: calendarStyle,
+                allowsRepetition: allowsRepetition
             )
             .padding(.top, 16)
             .overlay(

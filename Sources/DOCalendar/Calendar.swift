@@ -9,10 +9,11 @@ import SwiftUI
 
 public struct CalendarView: View {
     var range: ClosedRange<Date>
-    @Binding var selection: Set<Date>
+    @Binding var selection: [Date]
     var calendar = Calendar.autoupdatingCurrent
     var numColumns: Int
     var style = CalendarStyle()
+    var allowsRepetition: Bool
 
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
 
@@ -20,16 +21,18 @@ public struct CalendarView: View {
 
     public init(
         range: ClosedRange<Date>,
-        selection: Binding<Set<Date>>,
+        selection: Binding<[Date]>,
         calendar: Calendar = Calendar.autoupdatingCurrent,
         numColumns: Int = 2,
-        style: CalendarStyle = CalendarStyle()
+        style: CalendarStyle = CalendarStyle(),
+        allowsRepetition: Bool = false
     ) {
         self.range = range
         self._selection = selection
         self.calendar = calendar
         self.numColumns = numColumns
         self.style = style
+        self.allowsRepetition = allowsRepetition
 
 //        items = (0...Self.numberOfMonthsIn(range: range, calendar: calendar)).map {
 //            CalendarItem(decomposedDate: range.lowerBound.plus(months: $0).decomposed())
@@ -104,7 +107,8 @@ public struct CalendarView: View {
                 range: adjustRange(range),
                 selections: $selection,
                 calendar: calendar,
-                style: style
+                style: style,
+                allowsRepetition: allowsRepetition
             )
         }
     }

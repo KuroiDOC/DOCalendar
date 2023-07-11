@@ -6,15 +6,16 @@ internal struct MonthView: View {
     let year: Int
     let range: ClosedRange<Date>
     @Binding
-    var selections: Set<Date>
+    var selections: [Date]
     let calendar: Calendar
     let style: CalendarStyle
+    let allowsRepetition: Bool
 
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
 
     private let items: [Item]
 
-    init(month: Int, year: Int, range: ClosedRange<Date>, selections: Binding<Set<Date>>, calendar: Calendar = Calendar.autoupdatingCurrent, style: CalendarStyle = CalendarStyle()) {
+    init(month: Int, year: Int, range: ClosedRange<Date>, selections: Binding<[Date]>, calendar: Calendar = Calendar.autoupdatingCurrent, style: CalendarStyle = CalendarStyle(), allowsRepetition: Bool = false) {
         self.month = month
         self.year = year
         self.range = range
@@ -22,6 +23,7 @@ internal struct MonthView: View {
         self.calendar = calendar
         self.style = style
         self.items = Self.buildItems(calendar: calendar, month: month, year: year)
+        self.allowsRepetition = allowsRepetition
     }
 
     public var body: some View {
@@ -142,7 +144,7 @@ internal struct MonthView: View {
 
     @ViewBuilder
     func rangeSelectionBackground(date: Date) -> some View {
-        if let selectionRange {
+        if let selectionRange, selectionRange.lowerBound != selectionRange.upperBound {
             HStack {
                 if selectionRange.lowerBound == date {
                     Rectangle()
@@ -216,7 +218,13 @@ internal struct MonthView: View {
         case .range:
             switch selectionRange {
             case .none:
-                selections.insert(date)
+                if allowsRepetition {
+                    selections.append(date)
+                } else {
+                    var selectionSet = Set(selections)
+                    selectionSet.insert(date)
+                    selections = Array(selectionSet)
+                }
             case .some(let selectionRange) where selectionRange ~= date:
                 selections = [date]
             case .some(let selectionRange):
@@ -226,7 +234,17 @@ internal struct MonthView: View {
                 ]
             }
         case .multi:
-            selections.insert(date)
+            if allowsRepetition {
+                selections.append(date)
+            } else {
+                var selectionSet = Set(selections)
+                if selectionSet.contains(date) {
+                    selectionSet.remove(date)
+                } else {
+                    selectionSet.insert(date)
+                }
+                selections = Array(selectionSet)
+            }
         }
     }
 }
@@ -252,7 +270,7 @@ struct Month_previews: PreviewProvider {
         var month: Int
         var year: Int
         var style = CalendarStyle(selectionStyle: .init(selectionOption: .range))
-        @State var selection: Set<Date> = .init()
+        @State var selection: [Date] = .init()
 
         var body: some View {
             MonthView(month: 4, year: 2023, range: range, selections: $selection, style: style)
