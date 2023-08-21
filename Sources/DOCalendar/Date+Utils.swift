@@ -77,3 +77,19 @@ extension Date {
         return calendar.date(from: components)
     }
 }
+
+extension Calendar {
+    func weekdaysBeforeMonthStarts(month: Int, year: Int) -> Int {
+        guard let date = Date.bySetting(day: 1, month: month, year: year, calendar: self) else {
+            fatalError("Invalid date components")
+        }
+
+        let result = self.component(.weekday, from: date) - self.firstWeekday
+        switch result {
+        case ..<0:
+            return result + 7
+        default:
+            return result
+        }
+    }
+}

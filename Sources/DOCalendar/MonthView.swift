@@ -78,31 +78,11 @@ internal struct MonthView: View {
         return result.upperBound - 1
     }
 
-    // From 1 to 7
-    static func firstWeekDay(calendar: Calendar, month: Int, year: Int) -> Int {
-        var dateComponents = DateComponents(calendar: calendar)
-        dateComponents.day = 1
-        dateComponents.month = month
-        dateComponents.year = year
-
-        guard let date = Date.bySetting(day: 1, month: month, year: year, calendar: calendar) else {
-            fatalError("Invalid date components")
-        }
-
-        let result = calendar.component(.weekday, from: date) - (calendar.firstWeekday - 1)
-        switch result {
-        case 0:
-            return 7
-        default:
-            return result
-        }
-    }
-
     static func buildItems(calendar: Calendar, month: Int, year: Int) -> [Item] {
-        let firstWeekDay = firstWeekDay(calendar: calendar, month: month, year: year)
+        let spareWeekdays = calendar.weekdaysBeforeMonthStarts(month: month, year: year)
         let lastDay = lastDay(calendar: calendar, month: month, year: year)
 
-        let spares = (1..<firstWeekDay).map { _ in Item() }
+        let spares = (0..<spareWeekdays).map { _ in Item() }
         let result = spares + (1...lastDay).map {
             Item(decomposedDate: Date.Decomposed(year: year, month: month, day: $0))
         }
