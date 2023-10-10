@@ -32,13 +32,16 @@ internal struct MonthView: View {
                 .textCase(style.headerStyle.monthCase)
                 .font(style.headerStyle.monthFont)
                 .foregroundColor(style.headerStyle.monthColor)
+                .padding(.vertical, style.rowSpacing / 2)
                 .background(style.headerStyle.monthBackground)
 
             let columns = Array(repeating: GridItem(.flexible(), spacing: 0), count: 7)
 
-            LazyVGrid(columns: columns, spacing: 0) {
-                if horizontalSizeClass != .compact {
-                    WeekdaysView(calendar: calendar, style: style)
+            LazyVGrid(columns: columns, spacing: style.rowSpacing) {
+                if style.headerStyle.shouldDisplay, horizontalSizeClass != .compact {
+                    WeekdayItems(calendar: calendar, style: style)
+                        .padding(.vertical, 16)
+                        .background(style.headerStyle.weekDayBackground)
                 }
 
                 ForEach(items) { item in
@@ -243,28 +246,40 @@ struct Item: Identifiable {
     }
 }
 
-struct Month_previews: PreviewProvider {
+#if DEBUG
+
+
+
+struct Container: View {
+    var month: Int
+    var year: Int
+    var style = CalendarStyle(selectionStyle: .init(selectionOption: .range))
+    @State var selection: [Date] = .init()
+
     static let range = Date.bySetting(day: 15, month: 2, year: 2023)!...Date.bySetting(day: 15, month: 5, year: 2023)!
 
-    struct Container: View {
-        var month: Int
-        var year: Int
-        var style = CalendarStyle(selectionStyle: .init(selectionOption: .range))
-        @State var selection: [Date] = .init()
-
-        var body: some View {
-            MonthView(month: 4, year: 2023, range: range, selections: $selection, style: style)
-        }
+    var body: some View {
+        MonthView(month: month, year: year, range: Self.range, selections: $selection, style: style)
     }
+}
 
-    static var previews: some View {
-        ScrollView {
-            VStack {
-                MonthView(month: 2, year: 2023, range: range, selections: .constant([]))
-                Container(month: 3, year: 2023)
-                Container(month: 4, year: 2023, style: .init())
-                Container(month: 5, year: 2023)
-            }
+#Preview("Default") {
+    ScrollView {
+        VStack {
+            MonthView(month: 2, year: 2023, range: Container.range, selections: .constant([]))
+            Container(month: 3, year: 2023)
+            Container(month: 4, year: 2023, style: .init())
+            Container(month: 5, year: 2023)
         }
     }
 }
+
+#Preview("Spaced") {
+    ScrollView {
+        VStack {
+            Container(month: 3, year: 2023, style: .init(rowSpacing: 32))
+            Container(month: 4, year: 2023, style: .init(rowSpacing: 32))
+        }
+    }
+}
+#endif

@@ -11,11 +11,13 @@ public struct CalendarStyle {
     var itemStyle = ItemStyle()
     var selectionStyle = SelectionSyle()
     var headerStyle = HeaderStyle()
+    var rowSpacing: CGFloat
 
-    public init(itemStyle: ItemStyle = ItemStyle(), selectionStyle: SelectionSyle = SelectionSyle(), headerStyle: HeaderStyle = HeaderStyle()) {
+    public init(itemStyle: ItemStyle = ItemStyle(), selectionStyle: SelectionSyle = SelectionSyle(), headerStyle: HeaderStyle = HeaderStyle(), rowSpacing: CGFloat = 0) {
         self.itemStyle = itemStyle
         self.selectionStyle = selectionStyle
         self.headerStyle = headerStyle
+        self.rowSpacing = rowSpacing
     }
 }
 
@@ -58,6 +60,7 @@ public struct SelectionSyle {
 }
 
 public struct HeaderStyle {
+    var shouldDisplay: Bool
     var weekDayFont: Font
     var weekDayColor: Color
     var weekDayBackground: Color
@@ -66,7 +69,8 @@ public struct HeaderStyle {
     var monthBackground: Color
     var monthCase: Text.Case?
 
-    public init(weekDayFont: Font = .subheadline, weekDayColor: Color = .label, weekDayBackground: Color = .background, monthFont: Font = .headline, monthColor: Color = .label, monthBackground: Color = .background, monthCase: Text.Case? = .none) {
+    public init(shouldDisplay: Bool = true, weekDayFont: Font = .subheadline, weekDayColor: Color = .label, weekDayBackground: Color = .background, monthFont: Font = .headline, monthColor: Color = .label, monthBackground: Color = .background, monthCase: Text.Case? = .none) {
+        self.shouldDisplay = shouldDisplay
         self.weekDayFont = weekDayFont
         self.weekDayColor = weekDayColor
         self.weekDayBackground = weekDayBackground

@@ -7,11 +7,16 @@
 
 import SwiftUI
 
-struct WeekdaysView: View {
+public struct WeekdayItems: View {
     var calendar: Calendar
     var style: CalendarStyle
 
-    var body: some View {
+    public init(calendar: Calendar = .autoupdatingCurrent, style: CalendarStyle = .init()) {
+        self.calendar = calendar
+        self.style = style
+    }
+
+    public var body: some View {
         let items = calendar
             .shortWeekdaySymbols
             .shiftLeft(positions: calendar.firstWeekday - 1)
@@ -22,8 +27,6 @@ struct WeekdaysView: View {
                 .font(style.headerStyle.weekDayFont)
                 .foregroundColor(style.headerStyle.weekDayColor)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
-                .background(style.headerStyle.weekDayBackground)
         }
     }
 
@@ -32,3 +35,12 @@ struct WeekdaysView: View {
         var text: String
     }
 }
+
+#Preview {
+    HStack {
+        WeekdayItems(calendar: .autoupdatingCurrent, style: .init())
+    }
+    .padding([.horizontal, .top], 24)
+    .background(Color.gray)
+}
+

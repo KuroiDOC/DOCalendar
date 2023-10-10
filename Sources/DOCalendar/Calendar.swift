@@ -33,10 +33,7 @@ public struct CalendarView: View {
         self.numColumns = numColumns
         self.style = style
         self.allowsRepetition = allowsRepetition
-
-//        items = (0...Self.numberOfMonthsIn(range: range, calendar: calendar)).map {
-//            CalendarItem(decomposedDate: range.lowerBound.plus(months: $0).decomposed())
-//        }
+        
         items = Self.buildItems(range: range, calendar: calendar)
     }
 
@@ -58,9 +55,11 @@ public struct CalendarView: View {
 
     public var body: some View {
         VStack {
-            if horizontalSizeClass == .compact {
+            if style.headerStyle.shouldDisplay, horizontalSizeClass == .compact {
                 HStack(spacing: 0) {
-                    WeekdaysView(calendar: calendar, style: style)
+                    WeekdayItems(calendar: calendar, style: style)
+                        .padding(.vertical, 16)
+                        .background(style.headerStyle.weekDayBackground)
                 }
             }
             ScrollView {
@@ -135,3 +134,27 @@ private extension Array {
         }
     }
 }
+
+#if DEBUG
+struct PreviewContainer: View {
+    @State var selection: [Date] = []
+    var style = CalendarStyle()
+
+    var body: some View {
+        CalendarView(range: Date()...Date().plus(years: 1), selection: $selection, style: style)
+    }
+}
+
+#Preview("Default") {
+    PreviewContainer()
+}
+
+#Preview("Customized") {
+    PreviewContainer(style: .init(headerStyle: .init(weekDayColor: .white, weekDayBackground: .gray)))
+}
+
+#Preview("No Header") {
+    PreviewContainer(style: .init(headerStyle: .init(shouldDisplay: false)))
+}
+
+#endif
