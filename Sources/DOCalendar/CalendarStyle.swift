@@ -28,16 +28,28 @@ public struct ItemStyle {
     var font: Font
     var todayTextColor: Color
     var todayFont: Font
+    var todayBackground: any View
     var unavailableTextColor: Color
     var unavailableFont: Font
 
-    public init(background: Color = .background, itemBackground: Color = .background, textColor: Color = .label, font: Font = .body, todayTextColor: Color = .accentColor, todayFont: Font = .body.bold(), unavailableTextColor: Color = .secondaryLabel, unavailableFont: Font = .body) {
+    public init(
+        background: Color = .background,
+        itemBackground: Color = .background,
+        textColor: Color = .label,
+        font: Font = .body,
+        todayTextColor: Color = .accentColor,
+        todayFont: Font = .body.bold(),
+        todayBackground: any View = Color.background,
+        unavailableTextColor: Color = .secondaryLabel,
+        unavailableFont: Font = .body
+    ) {
         self.background = background
         self.itemBackground = itemBackground
         self.textColor = textColor
         self.font = font
         self.todayTextColor = todayTextColor
         self.todayFont = todayFont
+        self.todayBackground = todayBackground
         self.unavailableTextColor = unavailableTextColor
         self.unavailableFont = unavailableFont
     }

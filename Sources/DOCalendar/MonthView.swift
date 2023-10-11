@@ -120,6 +120,8 @@ internal struct MonthView: View {
                 )
         case .range where isDateInRange(date: date):
             style.selectionStyle.rangeBackground
+        case _ where calendar.isDateInToday(date):
+            AnyView(style.itemStyle.todayBackground)
         default:
             style.itemStyle.itemBackground
         }
@@ -256,7 +258,10 @@ struct Container: View {
     var style = CalendarStyle(selectionStyle: .init(selectionOption: .range))
     @State var selection: [Date] = .init()
 
-    static let range = Date.bySetting(day: 15, month: 2, year: 2023)!...Date.bySetting(day: 15, month: 5, year: 2023)!
+    static let range: ClosedRange<Date> = {
+        let date = Date().plus(months: 1).decomposed()
+        return Date.bySetting(day: 15, month: 2, year: 2023)!...Date.bySetting(day: date.day, month: date.month, year: date.year)!
+    }()
 
     var body: some View {
         MonthView(month: month, year: year, range: Self.range, selections: $selection, style: style)
@@ -266,10 +271,12 @@ struct Container: View {
 #Preview("Default") {
     ScrollView {
         VStack {
+            let date = Date().decomposed()
             MonthView(month: 2, year: 2023, range: Container.range, selections: .constant([]))
             Container(month: 3, year: 2023)
             Container(month: 4, year: 2023, style: .init())
             Container(month: 5, year: 2023)
+            Container(month: date.month, year: date.year)
         }
     }
 }
@@ -279,6 +286,17 @@ struct Container: View {
         VStack {
             Container(month: 3, year: 2023, style: .init(rowSpacing: 32))
             Container(month: 4, year: 2023, style: .init(rowSpacing: 32))
+        }
+    }
+}
+
+#Preview("Today background") {
+    ScrollView {
+        VStack {
+            let date = Date().decomposed()
+            Container(month: date.month, year: date.year, style: .init(
+                itemStyle: .init(todayBackground: Circle().stroke(Color.black).padding(1))
+            ))
         }
     }
 }
