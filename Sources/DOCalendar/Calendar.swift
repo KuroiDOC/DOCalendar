@@ -62,37 +62,53 @@ public struct CalendarView: View {
                         .background(style.headerStyle.weekDayBackground)
                 }
             }
-            ScrollView {
-                if horizontalSizeClass == .compact {
-                    VStack {
-                        innerBody
-                    }
-                } else {
-                    // Because of a glitchy behaviour using a LazyVGrid, this multiple month layout is restricted for iOS 16
-                    if #available(iOS 16, *) {
-                        Grid {
-                            let chunks = items.chunked(into: numColumns)
-                            ForEach(0..<chunks.count, id: \.self) { index in
-                                let chunk = chunks[index]
-                                GridRow(alignment: .top) {
-                                    ForEach(chunk) { item in
-                                        MonthView(
-                                            month: item.decomposedDate.month,
-                                            year: item.decomposedDate.year,
-                                            range: adjustRange(range),
-                                            selections: $selection,
-                                            calendar: calendar,
-                                            style: style
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    } else {
+            ScrollViewReader { scrollViewProxy in
+                ScrollView {
+                    if horizontalSizeClass == .compact {
                         VStack {
                             innerBody
                         }
+                    } else {
+                        // Because of a glitchy behaviour using a LazyVGrid, this multiple month layout is restricted for iOS 16
+                        if #available(iOS 16, *) {
+                            Grid {
+                                let chunks = items.chunked(into: numColumns)
+                                ForEach(0..<chunks.count, id: \.self) { index in
+                                    let chunk = chunks[index]
+                                    GridRow(alignment: .top) {
+                                        ForEach(chunk) { item in
+                                            let decomposedDate = item.decomposedDate
+                                            MonthView(
+                                                month: decomposedDate.month,
+                                                year: decomposedDate.year,
+                                                range: adjustRange(range),
+                                                selections: $selection,
+                                                calendar: calendar,
+                                                style: style
+                                            )
+                                            .id(item.id)
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            VStack {
+                                innerBody
+                            }
+                        }
                     }
+                }
+                .onAppear {
+                    Task { @MainActor in
+                        try? await Task.sleep(nanoseconds: 500 * NSEC_PER_MSEC)
+                        if let nearestDate = self.selection.sorted(by: <).first {
+                            let item = CalendarItem(decomposedDate: nearestDate.decomposed(calendar: calendar))
+                            withAnimation {
+                                scrollViewProxy.scrollTo(item.id, anchor: .top)
+                            }
+                        }
+                    }
+
                 }
             }
         }
@@ -109,6 +125,7 @@ public struct CalendarView: View {
                 style: style,
                 allowsRepetition: allowsRepetition
             )
+            .id(item.id)
         }
     }
 
